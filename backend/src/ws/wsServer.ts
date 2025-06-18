@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import { Chat } from '../models/chat.model';
 import { ExtendedWebSocket } from '../types/ws.types';
+import logger from '../utils/logger';
 
 const roomsMap = new Map<string, Set<ExtendedWebSocket>>();
 
