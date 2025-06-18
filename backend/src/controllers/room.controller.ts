@@ -13,3 +13,16 @@ export const getRooms = async (_req: Request, res: Response, next: NextFunction)
         next(error);
     }
 }
+
+export const getRoomById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { roomId } = req.params;
+        const room = await Room.findById(roomId);
+        res.status(200).json(successResponse({
+            message: "Fetched room",
+            data: room
+        }))
+    } catch (error) {
+        next(error);
+    }
+}
