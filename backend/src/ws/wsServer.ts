@@ -16,55 +16,86 @@ export const setupWebSocket = (server: any) => {
     ws.on('message', async (data) => {
       try {
         const payload = JSON.parse(data.toString());
-        const { type, room, username, message } = payload;
+          const { type, roomName, roomId, username, message } = payload;
+
+        if (type === 'create') {
+          // persist room in DB if it doesn't exist
+          logger.info('Create room event triggered')
+          let existingRoom = await Room.findOne({ name: roomName });
+          if (existingRoom) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Failed to create room! Room already exists!' }));
+            return;
+          }
+          let newRoom = await Room.create({ name: roomName });
+          logger.info(`Room "${roomName}" created in DB`);
+
+          if (!roomsMap.has(newRoom?._id?.toString())) {
+            roomsMap.set(newRoom?._id?.toString(), new Set());
+          }
+          roomsMap.get(newRoom?._id?.toString())!.add(ws);
+
+          ws.username = username;
+          ws.joinedRooms!.add(newRoom?._id?.toString());
+
+          ws.send(JSON.stringify({ type: 'newRoomCreated', message: {
+            id: newRoom._id,
+            name: newRoom.name
+          }}))
+          return;
+        }
 
         if (type === 'join') {
           ws.username = username;
-          ws.joinedRooms!.add(room);
+          ws.joinedRooms!.add(roomId);
 
           // persist room in DB if it doesn't exist
-          let existingRoom = await Room.findOne({ name: room });
+          let existingRoom = await Room.findById(roomId);
           if (!existingRoom) {
-            existingRoom = await Room.create({ name: room });
-            logger.info(`Room "${room}" created in DB`);
+            ws.send(JSON.stringify({ type: 'error', message: 'Room doesn\'t exist!' }));
+            return;
           }
 
           // Track in in-memory map for broadcasting
-          if (!roomsMap.has(room)) {
-            
-            roomsMap.set(room, new Set());
+          if (!roomsMap.has(existingRoom?._id.toString())) {
+            roomsMap.set(existingRoom?._id.toString(), new Set());
           }
-          roomsMap.get(room)!.add(ws);
+          roomsMap.get(existingRoom._id.toString())!.add(ws);
 
-          const recentMessages = await Chat.find({ room })
+          const recentMessages = await Chat.find({ room_id: roomId })
             .sort({ timestamp: -1 })
             .limit(50)
             .lean();
 
-          ws.send(JSON.stringify({ type: 'history', room, messages: recentMessages.reverse() }));
+          ws.send(JSON.stringify({ type: 'history', room: roomId, messages: recentMessages.reverse() }));
+          return;
         }
 
         if (type === 'leave') {
-          ws.joinedRooms?.delete(room);
-          roomsMap.get(room)?.delete(ws);
+          ws.joinedRooms?.delete(roomId);
+          roomsMap.get(roomId)?.delete(ws);
+          return;
         }
 
         if (type === 'message') {
-          const chat = await Chat.create({ room, username: ws.username, message });
+          console.log('roomId: ', roomId);
+          console.log('username: ', username);
+          console.log('message: ', message);
+          const chat = await Chat.create({ room_id: roomId, username: ws.username, message });
 
           const broadcast = {
             type: 'message',
-            room,
+            roomId,
             username: ws.username,
             message,
             timestamp: chat.timestamp,
           };
 
-          roomsMap.get(room)?.forEach(client => {
+          roomsMap.get(roomId)?.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
               client.send(JSON.stringify(broadcast));
             }
           });
+          return;
         }
       } catch (err) {
         console.error('Invalid message:', err);

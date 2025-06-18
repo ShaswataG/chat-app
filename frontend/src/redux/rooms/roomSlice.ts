@@ -4,7 +4,6 @@ import { getAllRooms, getRoomById } from './roomThunk';
 export interface Room {
   id: string;
   name: string;
-  // add more fields here if your schema grows
 }
 
 interface RoomState {
@@ -27,6 +26,12 @@ const roomSlice = createSlice({
   name: 'room',
   initialState,
   reducers: {
+    addRoom(state, action: PayloadAction<Room>) {
+      const newRoom = action.payload;
+      if (!state.allRooms.find(room => room.id === newRoom.id)) {
+        state.allRooms.push(newRoom);
+      }
+    },
     joinRoom(state, action: PayloadAction<Room>) {
       if (!state.joinedRooms.find(r => r.id === action.payload.id)) {
         state.joinedRooms.push(action.payload);
@@ -74,5 +79,5 @@ const roomSlice = createSlice({
   }
 });
 
-export const { joinRoom, leaveRoom, setCurrentRoom } = roomSlice.actions;
+export const { addRoom, joinRoom, leaveRoom, setCurrentRoom } = roomSlice.actions;
 export default roomSlice.reducer;

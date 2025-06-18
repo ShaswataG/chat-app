@@ -1,45 +1,71 @@
-import { use, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { addMessage, setMessages } from '../redux/chats/chatSlice';
 import MessageInput from '../components/custom/others/MessageInput';
 
-let socket: WebSocket;
+let newSocket: WebSocket;
+
+const sendWhenReady = (socket: WebSocket, data: any) => {
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify(data));
+  } else {
+    socket.addEventListener('open', () => {
+      socket.send(JSON.stringify(data));
+    }, { once: true }); // send only once when open
+  }
+};
 
 export default function RoomPage() {
   const { id: roomId } = useParams();
+  const socketRef = useRef<WebSocket | null>(null);
   const dispatch = useAppDispatch();
   const messages = useAppSelector(state => state.chat.messages[roomId!] || []);
-//   const username = useAppSelector(state => state.room.currentRoom?.name || '');
   const { name: roomName } = useAppSelector(state => state.room.currentRoom || { name: '' });
   const { name:username } = useAppSelector(state => state.user);
 
   useEffect(() => {
     if (!roomId) return;
 
-    socket = new WebSocket('ws://localhost:8080');
+    newSocket = new WebSocket('ws://localhost:8080');
+    socketRef.current = newSocket;
 
-    socket.onopen = () => {
-      socket.send(JSON.stringify({ type: 'join', username, room: roomId }));
+    newSocket.onopen = () => {
+      sendWhenReady(newSocket, { type: 'join', username, roomId });
     };
 
-    socket.onmessage = (event) => {
+    newSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'history') {
-        dispatch(setMessages({ room: data.room, messages: data.messages }));
+        dispatch(setMessages({ roomId: data.room, messages: data.messages }));
       } else if (data.type === 'message') {
         dispatch(addMessage(data));
+      } else if (data.type === 'error') {
+        console.error('Error from server:', data.message);
       }
     };
 
-    // return () => {
-    //   socket.send(JSON.stringify({ type: 'leave', room: roomId }));
-    //   socket.close();
-    // };
+    return () => {
+      if (newSocket.readyState === WebSocket.OPEN) {
+        newSocket.send(JSON.stringify({ type: 'leave', room: roomId }));
+      } else {
+        // If not open yet, just close it silently
+        newSocket.addEventListener('open', () => {
+          newSocket.send(JSON.stringify({ type: 'leave', room: roomId }));
+          newSocket.close();
+        }, { once: true });
+    
+        return;
+      }
+    
+      newSocket.close();
+    };
   }, [roomId]);
 
   const handleSend = (message: string) => {
-    socket.send(JSON.stringify({ type: 'message', message, room: roomId }));
+      if (socketRef.current) {
+        sendWhenReady(socketRef.current, { type: 'message', message, roomId: roomId, username: username });
+      }
   };
 
   return (

@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface Message {
-  room: string;
+  roomId: string;
   username: string;
   message: string;
   timestamp: string;
@@ -20,12 +20,12 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     addMessage(state, action: PayloadAction<Message>) {
-      const { room } = action.payload;
-      if (!state.messages[room]) state.messages[room] = [];
-      state.messages[room].push(action.payload);
+      const { roomId } = action.payload;
+      if (!state.messages[roomId]) state.messages[roomId] = [];
+      state.messages[roomId].push(action.payload);
     },
-    setMessages(state, action: PayloadAction<{ room: string; messages: Message[] }>) {
-      state.messages[action.payload.room] = action.payload.messages;
+    setMessages(state, action: PayloadAction<{ roomId: string; messages: Message[] }>) {
+      state.messages[action.payload.roomId] = action.payload.messages;
     },
   },
 });
