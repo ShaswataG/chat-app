@@ -8,7 +8,7 @@ export const setupWebSocket = (server: any) => {
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', async (ws: ExtendedWebSocket) => {
-    console.log('Client connected')
+    logger.info("Client connected")
     ws.joinedRooms = new Set();
 
     ws.on('message', async (data) => {
