@@ -20,7 +20,18 @@ export const setupWebSocket = (server: any) => {
           ws.username = username;
           ws.joinedRooms!.add(room);
 
-          if (!roomsMap.has(room)) roomsMap.set(room, new Set());
+          // persist room in DB if it doesn't exist
+          let existingRoom = await Room.findOne({ name: room });
+          if (!existingRoom) {
+            existingRoom = await Room.create({ name: room });
+            logger.info(`Room "${room}" created in DB`);
+          }
+
+          // Track in in-memory map for broadcasting
+          if (!roomsMap.has(room)) {
+            
+            roomsMap.set(room, new Set());
+          }
           roomsMap.get(room)!.add(ws);
 
           const recentMessages = await Chat.find({ room })
