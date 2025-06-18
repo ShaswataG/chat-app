@@ -1,54 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { addMessage, setMessages } from '../redux/chats/chatSlice';
-import { joinRoom } from '../redux/rooms/roomSlice';
+import { getAllRooms } from '../redux/rooms/roomThunk';
 import UsernameInput from '../components/custom/global/UsernameInput';
-import MessageInput from '../components/custom/others/MessageInput';
-
-let socket: WebSocket;
+import Sidebar from '../components/custom/global/Sidebar';
+import { Outlet } from 'react-router-dom';
+import { setUser } from '../redux/users/userSlice';
 
 export default function Home() {
-  const [username, setUsername] = useState('');
-  const [currentRoom, setCurrentRoom] = useState('general');
   const dispatch = useAppDispatch();
-  const messages = useAppSelector(state => state.chat.messages[currentRoom] || []);
+  const { name } = useAppSelector((state) => state.user);
 
-  const initSocket = (name: string) => {
-    socket = new WebSocket('ws://localhost:8080');
+  const handleUsernameSubmit = (name: string) => {
+    dispatch(setUser({ name }));
+  }
 
-    socket.onopen = () => {
-      socket.send(JSON.stringify({ type: 'join', username: name, room: currentRoom }));
-      dispatch(joinRoom(currentRoom));
-    };
+  useEffect(() => {8
+    dispatch(getAllRooms()).unwrap();
+    
+  }, []);
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'history') {
-        dispatch(setMessages({ room: data.room, messages: data.messages }));
-      } else if (data.type === 'message') {
-        dispatch(addMessage(data));
-      }
-    };
-  };
-
-  const handleSend = (message: string) => {
-    socket.send(JSON.stringify({ type: 'message', message, room: currentRoom }));
-  };
-
-  if (!username) return <UsernameInput onSubmit={(name) => {
-    setUsername(name);
-    initSocket(name);
-  }} />;
+  if (!name) return <UsernameInput onSubmit={(name) => { handleUsernameSubmit(name) }} />;
 
   return (
-    <div>
-      <h2>Room: {currentRoom}</h2>
-      <ul>
-        {messages.map((msg, idx) => (
-          <li key={idx}><b>{msg.username}</b>: {msg.message}</li>
-        ))}
-      </ul>
-      <MessageInput onSend={handleSend} />
+    <div className="flex h-screen">
+      <Sidebar />
+      <Outlet />
     </div>
   );
 }
