@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import { Chat } from '../models/chat.model';
+import { Room } from '../models/room.model';
 import { ExtendedWebSocket } from '../types/ws.types';
 import logger from '../utils/logger';
 
