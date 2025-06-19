@@ -1,6 +1,8 @@
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { useNavigate, useParams } from 'react-router-dom';
 import { leaveRoom, setCurrentRoom, addRoom } from '../../../redux/rooms/roomSlice';
+import { clearUser } from '../../../redux/users/userSlice';
+import { persistor } from '../../../redux/store';
 import { type Room } from '../../../redux/rooms/roomSlice';
 import { useState, useEffect } from 'react';
 
@@ -60,6 +62,24 @@ export default function Sidebar() {
     }
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    // Close WebSocket connection
+    if (socket) {
+      socket.close();
+      socket = null;
+    }
+    
+    // Clear user data from Redux
+    dispatch(clearUser());
+    
+    // Purge persisted store
+    await persistor.purge();
+    
+    // Navigate to auth page
+    navigate('/auth');
+  };
+
   // Handle create room
   const handleCreateRoom = () => {
     if (!roomName.trim()) {
@@ -102,6 +122,14 @@ export default function Sidebar() {
           Leave Room
         </button>
       )}
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="bg-gray-600 text-white p-2 m-4 rounded hover:bg-gray-700"
+      >
+        Logout
+      </button>
 
       {/* Popup */}
       {showPopup && (
