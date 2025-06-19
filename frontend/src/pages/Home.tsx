@@ -11,7 +11,7 @@ export default function Home() {
   const { name } = useAppSelector((state) => state.user);
 
   const handleUsernameSubmit = (name: string) => {
-    dispatch(setUser({ name }));
+    // dispatch(setUser({ name }));
   }
 
   useEffect(() => {8
