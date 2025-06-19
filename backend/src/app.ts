@@ -14,6 +14,10 @@ app.use(requestLogger);
 app.use('/api', router);
 
 // Add your routes here
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to the Chat App API' });
+})
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
