@@ -324,8 +324,3 @@ To use the deployed app:
 2. Register or log in with a username and password.
 3. Browse available rooms or create a new room.
 4. Join a room to start chatting in real time!
-
----
-
-This documentation covers the high-level and low-level design, API and WebSocket event flows, data models, and frontend structure as implemented in your codebase.
-
