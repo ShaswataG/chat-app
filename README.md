@@ -139,35 +139,35 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 - **POST `/api/auth/signup`**  
   Registers a new user.  
   **Body:** `{ name, password }`  
-  **Response:** `{ id, name }`
+  **Response:** `{ success: true, message: "User created successfully", data: { id, name } }`
 
 - **POST `/api/auth/signin`**  
   Authenticates a user and returns a JWT.  
   **Body:** `{ name, password }`  
-  **Response:** `{ token, user: { id, name } }`
+  **Response:** `{ "success": true, message: "Login successful", data: { token, user: { id, name } } }`
 
 #### b) Chat
 
 - **GET `/api/chat/:roomId`**  
   Fetches all chat messages for a room.  
-  **Response:** `{ data: [ { room_id, user_id, message, timestamp } ] }`
+  **Response:** `{ success: true, message: "Success", data: { message: "Fetched all chats of the room", data: [ { _id, room_id, user_id: { _id, name }, message, timestamp } ] } }`
 
 #### c) Room
 
 - **GET `/api/room`**  
   Fetches all rooms.  
-  **Response:** `{ data: [ { _id, name, admin_id } ] }`
+  **Response:** `{ success: true, message: "Success", data: {  message: "Fetched all rooms", data: [ { _id, name, admin_id } ] } }`
 
 - **GET `/api/room/:roomId`**  
   Fetches a specific room by ID.  
-  **Response:** `{ data: { _id, name, admin_id } }`
+  **Response:** `{ success: true, message: "Success", data: { message: "Fetched room", data: { _id, name, admin_id } } }`
 
 #### d) User
 
 - **GET `/api/user/joinedRooms`**  
   Fetches all rooms joined by the authenticated user.  
   **Headers:** `Authorization: Bearer <token>`  
-  **Response:** `{ data: [ { _id, name, ... } ] }`
+  **Response:** `{ success: true, message: "Success", data: { message: "Fetched joined rooms successfully", data: [ { _id, name, admin_id, createdAt, updatedAt } ] } }`
 
 ---
 
