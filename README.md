@@ -93,11 +93,11 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 ### iii) Architecture Diagram
 
 ```
-+-------------------+        HTTP/REST         +-------------------+
-|                   | <---------------------> |                   |
++-------------------+        HTTP/REST        +--------------------+
+|                   | <---------------------> |                    |
 |    React Frontend |                         |   Express Backend  |
-|                   | <--- WebSocket (WS) --->|                   |
-+-------------------+                         +-------------------+
+|                   | <--- WebSocket (WS) --->|                    |
++-------------------+                         +--------------------+
         |                                              |
         |                                              |
         |                                              |
