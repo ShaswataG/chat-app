@@ -103,6 +103,9 @@ export const setupWebSocket = (server: any) => {
           ws.send(JSON.stringify({ type: 'history', room: roomId, messages: recentMessages.reverse() }));
           return;
         } else if (type === 'confirmJoin') {
+          logger.info('Confirm join event triggered');
+
+
           const user = await User.findByIdAndUpdate(
             userId,
             { $addToSet: { joined_rooms_ids: roomId } },
