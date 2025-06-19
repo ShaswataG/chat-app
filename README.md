@@ -103,21 +103,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 
 ### iii) Architecture Diagram
 
-[Architecture](./Architecture.png)
-
-```
-+-------------------+        HTTP/REST        +--------------------+
-|                   | <---------------------> |                    |
-|  React Frontend   |                         |  Express Backend   |
-|                   | <--- WebSocket (WS) --->|                    |
-+-------------------+                         +--------------------+
-        |                                              |
-        |                                              |
-        |                                              |
-        |                                      +-----------------+
-        |                                      |   MongoDB       |
-        |                                      +-----------------+
-```
+<img src="https://github.com/ShaswataG/chat-app/blob/main/arch_diagram.png" />
 
 ---
 
