@@ -61,18 +61,14 @@ export default function RoomPage() {
 
     return () => {
       if (newSocket.readyState === WebSocket.OPEN) {
-        newSocket.send(JSON.stringify({ type: 'leave', room: roomId }));
+        newSocket.close();
       } else {
         // If not open yet, just close it silently
         newSocket.addEventListener('open', () => {
-          newSocket.send(JSON.stringify({ type: 'leave', room: roomId }));
           newSocket.close();
         }, { once: true });
-    
         return;
       }
-    
-      newSocket.close();
     };
   }, [roomId]);
 
