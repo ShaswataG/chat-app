@@ -88,11 +88,11 @@ export const setupWebSocket = (server: any) => {
           }
           roomsMap.get(existingRoom._id.toString())!.add(ws);
 
-          await User.findByIdAndUpdate(
-            userId,
-            { $addToSet: { joined_rooms_ids: roomId } },
-            { new: true }
-          );
+          // await User.findByIdAndUpdate(
+          //   userId,
+          //   { $addToSet: { joined_rooms_ids: roomId } },
+          //   { new: true }
+          // );
 
           const recentMessages = await Chat.find({ room_id: roomId })
             .sort({ timestamp: -1 })
