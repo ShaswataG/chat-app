@@ -292,14 +292,6 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 
 ---
 
-## References
-
-- Backend Source Code
-- Frontend Source Code
-- Assignment PDF
-
----
-
 ## 4. Concurrency Handling (Brief Overview)
 
 * The backend uses the `ws` library to establish WebSocket connections for real-time communication.
