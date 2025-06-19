@@ -4,6 +4,8 @@ import { leaveRoom, setCurrentRoom, addRoom } from '../../../redux/rooms/roomSli
 import { type Room } from '../../../redux/rooms/roomSlice';
 import { useState, useEffect } from 'react';
 
+const WS_URL = import.meta.env.VITE_WS_URL|| 'ws://localhost:8080';
+
 // Place this at module scope to persist socket
 let socket: WebSocket | null = null;
 
@@ -26,7 +28,7 @@ export default function Sidebar() {
   // WebSocket setup
   useEffect(() => {
     if (!socket) {
-      socket = new WebSocket("ws://localhost:8080");
+      socket = new WebSocket(WS_URL);
     }
     const handleMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);

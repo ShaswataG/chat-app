@@ -5,6 +5,8 @@ import { addMessage, setMessages } from '../redux/chats/chatSlice';
 import MessageInput from '../components/custom/others/MessageInput';
 import JoinRoomModal from '../components/custom/global/JoinRoomModal'; 
 
+const WS_URL = import.meta.env.VITE_WS_URL|| 'ws://localhost:8080';
+
 let newSocket: WebSocket;
 
 const sendWhenReady = (socket: WebSocket, data: any) => {
@@ -32,7 +34,7 @@ export default function RoomPage() {
   useEffect(() => {
     if (!roomId) return;
 
-    newSocket = new WebSocket('ws://localhost:8080');
+    newSocket = new WebSocket(WS_URL);
     socketRef.current = newSocket;
 
     newSocket.onopen = () => {
