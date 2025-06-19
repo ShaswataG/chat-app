@@ -5,7 +5,9 @@ import { successResponse } from "../utils/apiResponse";
 export const getChatsByRoomId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { roomId } = req.params;
-        const chats = await Chat.find({ room_id: roomId });
+        const chats = await Chat.find({ 
+            room_id: roomId
+        }).populate('user_id', 'name').sort({ timestamp: 1 });
         res.status(200).json(successResponse({
             message: "Fetched all chats of the room",
             data: chats
