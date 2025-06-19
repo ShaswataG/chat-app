@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { signupThunk, signinThunk } from '../../../redux/users/userThunk';
 
@@ -7,7 +8,15 @@ export default function AuthForm() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
-  const { error, loading } = useAppSelector(state => state.user);
+  const navigate = useNavigate();
+  const { error, loading, id } = useAppSelector(state => state.user);
+
+  // Redirect to root directory after successful signin/signup
+  useEffect(() => {
+    if (id && !loading) {
+      navigate('/');
+    }
+  }, [id, loading, navigate]);
 
   const handleSubmit = () => {
     if (isSignup) {
