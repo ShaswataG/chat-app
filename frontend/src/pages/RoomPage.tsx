@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { addMessage, setMessages } from '../redux/chats/chatSlice';
 import MessageInput from '../components/custom/others/MessageInput';
+import JoinRoomModal from '../components/custom/global/JoinRoomModal'; 
 
 let newSocket: WebSocket;
 
@@ -18,6 +19,10 @@ const sendWhenReady = (socket: WebSocket, data: any) => {
 
 export default function RoomPage() {
   const { id: roomId } = useParams();
+
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [pendingRoomId, setPendingRoomId] = useState<string | null>(null);
+
   const socketRef = useRef<WebSocket | null>(null);
   const dispatch = useAppDispatch();
   const messages = useAppSelector(state => state.chat.messages[roomId!] || []);
@@ -43,12 +48,14 @@ export default function RoomPage() {
           message: message?.message,
           timestamp: message?.timestamp
         }));
-
         dispatch(setMessages({ roomId: data.room, messages: messages }));
       } else if (data.type === 'message') {
         dispatch(addMessage(data));
       } else if (data.type === 'error') {
         console.error('Error from server:', data.message);
+      } else if (data.type === 'needJoinConfirmation') {
+        setPendingRoomId(data.roomId || null);
+        setShowJoinModal(true);
       }
     };
 
@@ -71,8 +78,24 @@ export default function RoomPage() {
 
   const handleSend = (message: string) => {
       if (socketRef.current) {
-        sendWhenReady(socketRef.current, { type: 'message', message, roomId: roomId, username: username });
+        sendWhenReady(socketRef.current, { type: 'message', message, roomId: roomId, userId, username: username });
       }
+  };
+
+  const handleConfirmJoin = () => {
+    if (pendingRoomId && socketRef.current) {
+      sendWhenReady(socketRef.current, {
+        type: 'confirmJoin',
+        roomId: pendingRoomId,
+        userId,
+      });
+    }
+    setShowJoinModal(false);
+  };
+  
+  const handleCancelJoin = () => {
+    setShowJoinModal(false);
+    setPendingRoomId(null);
   };
 
   return (
@@ -88,6 +111,11 @@ export default function RoomPage() {
       <div className="mt-4">
         <MessageInput onSend={handleSend} />
       </div>
+      <JoinRoomModal
+        isOpen={showJoinModal}
+        onConfirm={handleConfirmJoin}
+        onCancel={handleCancelJoin}
+      />
     </div>
   );
 }
