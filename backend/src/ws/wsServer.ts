@@ -127,6 +127,12 @@ export const setupWebSocket = (server: any) => {
           ws.send(JSON.stringify({ type: 'history', room: roomId, messages: recentMessages.reverse() }));
           return;
         } else if (type === 'leave') {
+          logger.info('Leave room event triggered');
+          await User.findByIdAndUpdate(
+            userId,
+            { $pull: { joined_rooms_ids: roomId } },
+            { new: true }
+          );
           ws.joinedRooms?.delete(roomId);
           roomsMap.get(roomId)?.delete(ws);
           return;

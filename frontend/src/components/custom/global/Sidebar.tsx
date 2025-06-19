@@ -53,6 +53,7 @@ export default function Sidebar() {
   const handleLeave = () => {
     if (currentRoomId) {
       dispatch(leaveRoom(currentRoomId));
+      socket?.send(JSON.stringify({ type: 'leave', roomId: currentRoomId, userId }));
       navigate('/');
     }
   };
