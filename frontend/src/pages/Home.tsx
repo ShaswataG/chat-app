@@ -4,7 +4,6 @@ import { getAllRooms } from '../redux/rooms/roomThunk';
 import UsernameInput from '../components/custom/global/UsernameInput';
 import Sidebar from '../components/custom/global/Sidebar';
 import { Outlet } from 'react-router-dom';
-import { setUser } from '../redux/users/userSlice';
 
 export default function Home() {
   const dispatch = useAppDispatch();
