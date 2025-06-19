@@ -327,7 +327,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 ## 6. Accessing the Deployed Application
 
 * **Frontend URL**: [https://your-username.github.io/chat-app](https://shaswatag.github.io/chat-app)
-* **Backend API**: Hosted on [Render](https://render.com) (URL hidden for security but used in `.env`)
+* **Backend API**: Hosted on Render
 
 To use the deployed app:
 
