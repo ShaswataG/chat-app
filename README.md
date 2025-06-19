@@ -6,8 +6,8 @@ This is a full-stack real-time chat application built with the MERN stack (Mongo
 
 ## 📚 Table of Contents
 
-- [Local Setup Instructions](https://github.com/ShaswataG/chat-app/edit/main/README.md#1-local-setup-instructions)
-- [Design - HLD, LLD](##2-high-level-design)
+- [Local Setup Instructions](https://github.com/ShaswataG/chat-app/blob/main/README.md#1-local-setup-instructions)
+- [Design - HLD, LLD](https://github.com/ShaswataG/chat-app/blob/main/README.md#2-high-level-design)
 -- [High Level Design](#2-high-level-design)
 -- [Low Level Design](#2-low-level-design)
 - [Concurrency Handling](#4-concurrency-handling-brief-overview)
