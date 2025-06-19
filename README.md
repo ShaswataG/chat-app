@@ -1,6 +1,78 @@
 # Real-Time Chat Application Documentation
 
-## 1. High Level Design
+This is a full-stack real-time chat application built with the MERN stack (MongoDB, Express, React, Node.js) and WebSockets. It allows users to register, log in, create or join chat rooms, and exchange messages in real-time.
+
+---
+
+## 1. Local Setup Instructions
+
+### Prerequisites
+
+* Node.js (v18+ recommended)
+* npm (comes with Node.js)
+* MongoDB Atlas or a local MongoDB instance
+
+### Environment Setup
+
+#### Backend:
+
+1. Navigate to the backend folder:
+
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the `backend/` directory:
+
+   ```env
+   PORT=8080
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_secret_key
+   CLIENT_URL=http://localhost:5173
+   ```
+4. Compile TypeScript:
+
+   ```bash
+   npm run build
+   ```
+5. Start the server:
+
+   ```bash
+   npm start
+   ```
+
+#### Frontend:
+
+1. Navigate to the frontend folder:
+
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the `frontend/` directory:
+
+   ```env
+   VITE_API_BASE_URL=http://localhost:8080/api
+   VITE_WS_URL=ws://localhost:8080
+   ```
+4. Start the Vite dev server:
+
+   ```bash
+   npm run dev
+   ```
+5. Open the frontend in your browser at [http://localhost:5173](http://localhost:5173)
+
+---
+
+## 2. High Level Design
 
 ### i) Introduction
 
@@ -225,6 +297,41 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 - Backend Source Code
 - Frontend Source Code
 - Assignment PDF
+
+---
+
+## 2. Concurrency Handling (Brief Overview)
+
+* The backend uses the `ws` library to establish WebSocket connections for real-time communication.
+* Each connected client is stored in an in-memory `Map<string, Set<ExtendedWebSocket>>` keyed by room ID, which tracks all clients connected to a room.
+* Rooms are persistent in MongoDB, but active WebSocket connections per room are managed in-memory.
+* A user can join multiple rooms, and messages sent to a room are broadcast only to clients who have joined that room.
+* Proper cleanup is done on WebSocket disconnection to remove clients from their joined room sets.
+
+---
+
+## 3. Assumptions and Design Choices
+
+* **Authentication**: JWT is used for authentication. A user must sign up and log in to access room functionality.
+* **Room Joining**: Room participation is a two-step process. Users must explicitly confirm before joining a room.
+* **Frontend State Management**: Redux Toolkit is used for predictable state handling and to allow easy future scaling.
+* **Message Storage**: Messages are stored in MongoDB, and on room join, the last 50 messages are fetched and shown.
+* **RBAC (Role-Based Access Control)**: Users can view/chat only in rooms they have joined. This is enforced both in WebSocket events and the database (`joined_rooms_ids`).
+* **Deployment Choices**: Backend is deployed on Render for API + WebSocket hosting. Frontend is deployed on GitHub Pages using static Vite build.
+
+---
+
+## 4. Accessing the Deployed Application
+
+* **Frontend URL**: [https://your-username.github.io/chat-app](https://shaswatag.github.io/chat-app)
+* **Backend API**: Hosted on [Render](https://render.com) (URL hidden for security but used in `.env`)
+
+To use the deployed app:
+
+1. Visit the frontend link.
+2. Register or log in with a username and password.
+3. Browse available rooms or create a new room.
+4. Join a room to start chatting in real time!
 
 ---
 
