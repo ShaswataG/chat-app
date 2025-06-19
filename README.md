@@ -95,7 +95,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 ```
 +-------------------+        HTTP/REST        +--------------------+
 |                   | <---------------------> |                    |
-|    React Frontend |                         |   Express Backend  |
+|  React Frontend   |                         |  Express Backend   |
 |                   | <--- WebSocket (WS) --->|                    |
 +-------------------+                         +--------------------+
         |                                              |
