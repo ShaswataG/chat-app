@@ -130,7 +130,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 
 ---
 
-## 2. Low Level Design
+## 3. Low Level Design
 
 ### i) API Endpoints
 
@@ -300,7 +300,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 
 ---
 
-## 2. Concurrency Handling (Brief Overview)
+## 4. Concurrency Handling (Brief Overview)
 
 * The backend uses the `ws` library to establish WebSocket connections for real-time communication.
 * Each connected client is stored in an in-memory `Map<string, Set<ExtendedWebSocket>>` keyed by room ID, which tracks all clients connected to a room.
@@ -310,7 +310,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 
 ---
 
-## 3. Assumptions and Design Choices
+## 5. Assumptions and Design Choices
 
 * **Authentication**: JWT is used for authentication. A user must sign up and log in to access room functionality.
 * **Room Joining**: Room participation is a two-step process. Users must explicitly confirm before joining a room.
@@ -321,7 +321,7 @@ This is a real-time chat application built using the MERN stack (MongoDB, Expres
 
 ---
 
-## 4. Accessing the Deployed Application
+## 6. Accessing the Deployed Application
 
 * **Frontend URL**: [https://your-username.github.io/chat-app](https://shaswatag.github.io/chat-app)
 * **Backend API**: Hosted on [Render](https://render.com) (URL hidden for security but used in `.env`)
