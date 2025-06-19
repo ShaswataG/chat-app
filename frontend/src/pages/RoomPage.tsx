@@ -22,7 +22,7 @@ export default function RoomPage() {
   const dispatch = useAppDispatch();
   const messages = useAppSelector(state => state.chat.messages[roomId!] || []);
   const { name: roomName } = useAppSelector(state => state.room.currentRoom || { name: '' });
-  const { name:username } = useAppSelector(state => state.user);
+  const { id:userId, name:username } = useAppSelector(state => state.user);
 
   useEffect(() => {
     if (!roomId) return;
@@ -31,13 +31,20 @@ export default function RoomPage() {
     socketRef.current = newSocket;
 
     newSocket.onopen = () => {
-      sendWhenReady(newSocket, { type: 'join', username, roomId });
+      sendWhenReady(newSocket, { type: 'join', userId, roomId });
     };
 
     newSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'history') {
-        dispatch(setMessages({ roomId: data.room, messages: data.messages }));
+        const messages = data.messages.map((message: any) => ({
+          roomId: message.room_id,
+          username: message?.user_id?.name,
+          message: message?.message,
+          timestamp: message?.timestamp
+        }));
+
+        dispatch(setMessages({ roomId: data.room, messages: messages }));
       } else if (data.type === 'message') {
         dispatch(addMessage(data));
       } else if (data.type === 'error') {

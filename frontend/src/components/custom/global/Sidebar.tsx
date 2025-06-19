@@ -15,7 +15,8 @@ export default function Sidebar() {
 
   const { allRooms } = useAppSelector(state => state.room);
   // If you store username in redux, adjust this selector:
-  const username = useAppSelector(state => state.user?.name) || "Anonymous";
+  // const username = useAppSelector(state => state.user?.name) || "Anonymous";
+  const { id:userId, name:username } = useAppSelector(state => state.user);
 
   // Popup state
   const [showPopup, setShowPopup] = useState(false);
@@ -63,7 +64,7 @@ export default function Sidebar() {
       return;
     }
     setError("");
-    socket?.send(JSON.stringify({ type: "create", roomName, username }));
+    socket?.send(JSON.stringify({ type: "create", roomName, userId }));
   };
 
   return (

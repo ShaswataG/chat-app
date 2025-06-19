@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import { Chat } from '../models/chat.model';
 import { Room } from '../models/room.model';
+import { User } from '../models/user.model';
 import { ExtendedWebSocket } from '../types/ws.types';
 import logger from '../utils/logger';
 
@@ -16,25 +17,34 @@ export const setupWebSocket = (server: any) => {
     ws.on('message', async (data) => {
       try {
         const payload = JSON.parse(data.toString());
-          const { type, roomName, roomId, username, message } = payload;
+          const { type, roomName, roomId, username, message, userId } = payload;
 
         if (type === 'create') {
           // persist room in DB if it doesn't exist
           logger.info('Create room event triggered')
+          console.log('ws.userId: ', ws.userId);
+          console.log('userId: ', userId);
+          const user = await User.findById(userId);
+          if (!user) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Invalid userId' }));
+            return;
+          }
+
           let existingRoom = await Room.findOne({ name: roomName });
           if (existingRoom) {
             ws.send(JSON.stringify({ type: 'error', message: 'Failed to create room! Room already exists!' }));
             return;
           }
-          let newRoom = await Room.create({ name: roomName });
+          let newRoom = await Room.create({ name: roomName, admin_id: userId });
           logger.info(`Room "${roomName}" created in DB`);
 
           if (!roomsMap.has(newRoom?._id?.toString())) {
             roomsMap.set(newRoom?._id?.toString(), new Set());
           }
           roomsMap.get(newRoom?._id?.toString())!.add(ws);
-
-          ws.username = username;
+          
+          ws.userId = userId;
+          ws.username = user.name;
           ws.joinedRooms!.add(newRoom?._id?.toString());
 
           ws.send(JSON.stringify({ type: 'newRoomCreated', message: {
@@ -45,8 +55,19 @@ export const setupWebSocket = (server: any) => {
         }
 
         if (type === 'join') {
+          logger.info('Join room event triggered')
+          ws.userId = userId;
           ws.username = username;
           ws.joinedRooms!.add(roomId);
+
+          console.log('ws.userId: ', ws.userId);
+          console.log('ws.username: ', ws.username);
+          const user = await User.findById(userId);
+          
+          if (!user) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Invalid userId' }));
+            return;
+          }
 
           // persist room in DB if it doesn't exist
           let existingRoom = await Room.findById(roomId);
@@ -61,9 +82,16 @@ export const setupWebSocket = (server: any) => {
           }
           roomsMap.get(existingRoom._id.toString())!.add(ws);
 
+          await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { joined_rooms_ids: roomId } },
+            { new: true }
+          );
+
           const recentMessages = await Chat.find({ room_id: roomId })
             .sort({ timestamp: -1 })
             .limit(50)
+            .populate('user_id', 'name')
             .lean();
 
           ws.send(JSON.stringify({ type: 'history', room: roomId, messages: recentMessages.reverse() }));
@@ -80,12 +108,19 @@ export const setupWebSocket = (server: any) => {
           console.log('roomId: ', roomId);
           console.log('username: ', username);
           console.log('message: ', message);
-          const chat = await Chat.create({ room_id: roomId, username: ws.username, message });
+
+          const user = await User.findById(ws.userId);
+          if (!user) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Invalid userId' }));
+            return;
+          }
+
+          const chat = await Chat.create({ room_id: roomId, user_id: ws.userId, message });
 
           const broadcast = {
             type: 'message',
             roomId,
-            username: ws.username,
+            username: user.name,
             message,
             timestamp: chat.timestamp,
           };
